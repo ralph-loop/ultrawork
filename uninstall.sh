@@ -151,7 +151,7 @@ print_summary() {
 
     echo ""
     echo "To reinstall:"
-    echo "  curl -fsSL https://raw.githubusercontent.com/ralph-loop/ultrawork/main/install.sh | bash"
+    echo "  curl -fsSL https://raw.githubusercontent.com/ralph-loop/ultrawork/master/install.sh | bash"
 }
 
 # Main uninstallation flow
