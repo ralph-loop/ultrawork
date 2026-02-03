@@ -81,6 +81,31 @@ create_ultrawork_skill_dir() {
     fi
 }
 
+# Create symbolic link from ~/.claude/skills/ultrawork to ~/.agent/skills/ultrawork
+create_symlink() {
+    local CLAUDE_SKILLS_DIR="${HOME}/.claude/skills"
+    local CLAUDE_ULTRAWORK_LINK="${CLAUDE_SKILLS_DIR}/ultrawork"
+
+    # Create ~/.claude/skills directory if not exists
+    if [ ! -d "$CLAUDE_SKILLS_DIR" ]; then
+        print_info "Creating Claude skills directory: $CLAUDE_SKILLS_DIR"
+        mkdir -p "$CLAUDE_SKILLS_DIR"
+    fi
+
+    # Remove existing symlink or directory
+    if [ -L "$CLAUDE_ULTRAWORK_LINK" ]; then
+        rm "$CLAUDE_ULTRAWORK_LINK"
+        print_info "Removed existing symlink"
+    elif [ -d "$CLAUDE_ULTRAWORK_LINK" ]; then
+        print_warning "Directory exists at $CLAUDE_ULTRAWORK_LINK, skipping symlink"
+        return
+    fi
+
+    # Create symlink (relative path)
+    ln -s "../../.agent/skills/ultrawork" "$CLAUDE_ULTRAWORK_LINK"
+    print_success "Created symlink: $CLAUDE_ULTRAWORK_LINK -> ~/.agent/skills/ultrawork"
+}
+
 # Download file from GitHub or copy from local
 download_or_copy() {
     local filename=$1
@@ -244,6 +269,7 @@ main() {
     create_config_dir
     install_skills
     create_default_config
+    create_symlink
     verify_installation
     print_usage
 }
