@@ -16,7 +16,6 @@ NC='\033[0m' # No Color
 # Installation paths
 AGENT_DIR="${HOME}/.agent"
 SKILLS_DIR="${AGENT_DIR}/skills"
-ULTRAWORK_SKILL_DIR="${SKILLS_DIR}/ultrawork"
 CONFIG_DIR="${AGENT_DIR}/ultrawork"
 
 # Parse arguments
@@ -123,64 +122,68 @@ remove_skills() {
     print_info "Removing ultrawork skill files..."
 
     # Validate path before deletion
-    if ! validate_path "${ULTRAWORK_SKILL_DIR}" ".agent/skills/ultrawork"; then
+    if ! validate_path "${SKILLS_DIR}" ".agent/skills"; then
         print_error "Path validation failed. Aborting."
         exit 1
     fi
 
-    if [ -d "${ULTRAWORK_SKILL_DIR}" ]; then
-        # Show files to be deleted
-        echo ""
-        echo "The following files will be deleted:"
-        if [ -f "${ULTRAWORK_SKILL_DIR}/ultrawork.md" ]; then
-            echo "  - ${ULTRAWORK_SKILL_DIR}/ultrawork.md"
-        fi
-        if [ -f "${ULTRAWORK_SKILL_DIR}/ulw.md" ]; then
-            echo "  - ${ULTRAWORK_SKILL_DIR}/ulw.md"
-        fi
-        echo ""
+    # Show files to be deleted
+    local has_files=false
+    echo ""
+    echo "The following files will be deleted:"
+    if [ -f "${SKILLS_DIR}/ultrawork.md" ]; then
+        echo "  - ${SKILLS_DIR}/ultrawork.md"
+        has_files=true
+    fi
+    if [ -f "${SKILLS_DIR}/ulw.md" ]; then
+        echo "  - ${SKILLS_DIR}/ulw.md"
+        has_files=true
+    fi
 
-        if ! confirm "Do you want to delete these skill files?"; then
-            print_warning "Skipped skill file removal"
-            return
-        fi
+    if [ "$has_files" = false ]; then
+        print_warning "No ultrawork skill files found (already removed?)"
+        return
+    fi
 
-        # Delete only specific ultrawork files
-        if [ -f "${ULTRAWORK_SKILL_DIR}/ultrawork.md" ]; then
-            rm -f "${ULTRAWORK_SKILL_DIR}/ultrawork.md"
-            print_success "Removed ultrawork.md"
-        fi
+    echo ""
 
-        if [ -f "${ULTRAWORK_SKILL_DIR}/ulw.md" ]; then
-            rm -f "${ULTRAWORK_SKILL_DIR}/ulw.md"
-            print_success "Removed ulw.md"
-        fi
+    if ! confirm "Do you want to delete these skill files?"; then
+        print_warning "Skipped skill file removal"
+        return
+    fi
 
-        # Remove directory only if empty
-        if [ -d "${ULTRAWORK_SKILL_DIR}" ] && [ -z "$(ls -A "${ULTRAWORK_SKILL_DIR}")" ]; then
-            rmdir "${ULTRAWORK_SKILL_DIR}"
-            print_success "Removed empty directory: ${ULTRAWORK_SKILL_DIR}"
-        elif [ -d "${ULTRAWORK_SKILL_DIR}" ]; then
-            print_warning "Directory not empty, keeping: ${ULTRAWORK_SKILL_DIR}"
-        fi
-    else
-        print_warning "ultrawork skill directory not found (already removed?)"
+    # Delete only specific ultrawork files
+    if [ -f "${SKILLS_DIR}/ultrawork.md" ]; then
+        rm -f "${SKILLS_DIR}/ultrawork.md"
+        print_success "Removed ultrawork.md"
+    fi
+
+    if [ -f "${SKILLS_DIR}/ulw.md" ]; then
+        rm -f "${SKILLS_DIR}/ulw.md"
+        print_success "Removed ulw.md"
     fi
 }
 
-# Remove symlink from ~/.claude/skills/ultrawork
-remove_symlink() {
-    local CLAUDE_ULTRAWORK_LINK="${HOME}/.claude/skills/ultrawork"
+# Remove symlinks from ~/.claude/skills/
+remove_symlinks() {
+    local CLAUDE_SKILLS_DIR="${HOME}/.claude/skills"
 
+    # Remove ultrawork.md symlink
+    local CLAUDE_ULTRAWORK_LINK="${CLAUDE_SKILLS_DIR}/ultrawork.md"
     if [ -L "$CLAUDE_ULTRAWORK_LINK" ]; then
         if confirm "Remove symlink at $CLAUDE_ULTRAWORK_LINK?"; then
             rm "$CLAUDE_ULTRAWORK_LINK"
             print_success "Removed symlink: $CLAUDE_ULTRAWORK_LINK"
-        else
-            print_warning "Skipped symlink removal"
         fi
-    elif [ -e "$CLAUDE_ULTRAWORK_LINK" ]; then
-        print_warning "$CLAUDE_ULTRAWORK_LINK exists but is not a symlink, skipping"
+    fi
+
+    # Remove ulw.md symlink
+    local CLAUDE_ULW_LINK="${CLAUDE_SKILLS_DIR}/ulw.md"
+    if [ -L "$CLAUDE_ULW_LINK" ]; then
+        if confirm "Remove symlink at $CLAUDE_ULW_LINK?"; then
+            rm "$CLAUDE_ULW_LINK"
+            print_success "Removed symlink: $CLAUDE_ULW_LINK"
+        fi
     fi
 }
 
@@ -239,7 +242,8 @@ print_summary() {
         echo "  - Cache data"
     else
         echo "Removed:"
-        echo "  - Skill directory (${ULTRAWORK_SKILL_DIR})"
+        echo "  - ${SKILLS_DIR}/ultrawork.md"
+        echo "  - ${SKILLS_DIR}/ulw.md"
         echo ""
         echo "Kept:"
         echo "  - Configuration: ${CONFIG_DIR}/config.json"
@@ -258,12 +262,12 @@ main() {
     print_header
 
     # Check if anything is installed
-    if [ ! -d "${ULTRAWORK_SKILL_DIR}" ] && [ ! -d "$CONFIG_DIR" ]; then
+    if [ ! -f "${SKILLS_DIR}/ultrawork.md" ] && [ ! -f "${SKILLS_DIR}/ulw.md" ] && [ ! -d "$CONFIG_DIR" ]; then
         print_warning "Ultrawork does not appear to be installed."
         exit 0
     fi
 
-    echo "This will uninstall ultrawork from: ${ULTRAWORK_SKILL_DIR}"
+    echo "This will uninstall ultrawork from: ${SKILLS_DIR}"
     if [ "$PURGE" = true ]; then
         echo -e "${YELLOW}WARNING: --purge flag is set. All data will be removed.${NC}"
     fi
@@ -276,7 +280,7 @@ main() {
 
     echo ""
     remove_skills
-    remove_symlink
+    remove_symlinks
 
     if [ "$PURGE" = true ]; then
         remove_config

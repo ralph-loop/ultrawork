@@ -16,7 +16,6 @@ NC='\033[0m' # No Color
 # Installation paths
 AGENT_DIR="${HOME}/.agent"
 SKILLS_DIR="${AGENT_DIR}/skills"
-ULTRAWORK_SKILL_DIR="${SKILLS_DIR}/ultrawork"
 CONFIG_DIR="${AGENT_DIR}/ultrawork"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -73,18 +72,9 @@ create_config_dir() {
     fi
 }
 
-# Create ultrawork skill directory
-create_ultrawork_skill_dir() {
-    if [ ! -d "$ULTRAWORK_SKILL_DIR" ]; then
-        print_info "Creating ultrawork skill directory: $ULTRAWORK_SKILL_DIR"
-        mkdir -p "$ULTRAWORK_SKILL_DIR"
-    fi
-}
-
-# Create symbolic link from ~/.claude/skills/ultrawork to ~/.agent/skills/ultrawork
-create_symlink() {
+# Create symbolic links from ~/.claude/skills/ to ~/.agent/skills/
+create_symlinks() {
     local CLAUDE_SKILLS_DIR="${HOME}/.claude/skills"
-    local CLAUDE_ULTRAWORK_LINK="${CLAUDE_SKILLS_DIR}/ultrawork"
 
     # Create ~/.claude/skills directory if not exists
     if [ ! -d "$CLAUDE_SKILLS_DIR" ]; then
@@ -92,18 +82,25 @@ create_symlink() {
         mkdir -p "$CLAUDE_SKILLS_DIR"
     fi
 
-    # Remove existing symlink or directory
+    # Create symlink for ultrawork.md
+    local CLAUDE_ULTRAWORK_LINK="${CLAUDE_SKILLS_DIR}/ultrawork.md"
     if [ -L "$CLAUDE_ULTRAWORK_LINK" ]; then
         rm "$CLAUDE_ULTRAWORK_LINK"
-        print_info "Removed existing symlink"
-    elif [ -d "$CLAUDE_ULTRAWORK_LINK" ]; then
-        print_warning "Directory exists at $CLAUDE_ULTRAWORK_LINK, skipping symlink"
-        return
+    fi
+    if [ ! -e "$CLAUDE_ULTRAWORK_LINK" ]; then
+        ln -s "../../.agent/skills/ultrawork.md" "$CLAUDE_ULTRAWORK_LINK"
+        print_success "Created symlink: $CLAUDE_ULTRAWORK_LINK"
     fi
 
-    # Create symlink (relative path)
-    ln -s "../../.agent/skills/ultrawork" "$CLAUDE_ULTRAWORK_LINK"
-    print_success "Created symlink: $CLAUDE_ULTRAWORK_LINK -> ~/.agent/skills/ultrawork"
+    # Create symlink for ulw.md
+    local CLAUDE_ULW_LINK="${CLAUDE_SKILLS_DIR}/ulw.md"
+    if [ -L "$CLAUDE_ULW_LINK" ]; then
+        rm "$CLAUDE_ULW_LINK"
+    fi
+    if [ ! -e "$CLAUDE_ULW_LINK" ]; then
+        ln -s "../../.agent/skills/ulw.md" "$CLAUDE_ULW_LINK"
+        print_success "Created symlink: $CLAUDE_ULW_LINK"
+    fi
 }
 
 # Download file from GitHub or copy from local
@@ -130,19 +127,16 @@ download_or_copy() {
 install_skills() {
     print_info "Installing ultrawork skill..."
 
-    # Create ultrawork skill directory
-    create_ultrawork_skill_dir
-
-    # Install ultrawork.md
-    if download_or_copy "ultrawork.md" "${ULTRAWORK_SKILL_DIR}/ultrawork.md"; then
+    # Install ultrawork.md to ~/.agent/skills/
+    if download_or_copy "ultrawork.md" "${SKILLS_DIR}/ultrawork.md"; then
         print_success "Installed ultrawork.md"
     else
         print_error "Failed to install ultrawork.md"
         exit 1
     fi
 
-    # Install ulw.md (alias)
-    if download_or_copy "ulw.md" "${ULTRAWORK_SKILL_DIR}/ulw.md"; then
+    # Install ulw.md (alias) to ~/.agent/skills/
+    if download_or_copy "ulw.md" "${SKILLS_DIR}/ulw.md"; then
         print_success "Installed ulw.md (alias)"
     else
         print_error "Failed to install ulw.md"
@@ -193,14 +187,14 @@ verify_installation() {
 
     local errors=0
 
-    if [ -f "${ULTRAWORK_SKILL_DIR}/ultrawork.md" ]; then
+    if [ -f "${SKILLS_DIR}/ultrawork.md" ]; then
         print_success "ultrawork.md installed"
     else
         print_error "ultrawork.md not found"
         ((errors++))
     fi
 
-    if [ -f "${ULTRAWORK_SKILL_DIR}/ulw.md" ]; then
+    if [ -f "${SKILLS_DIR}/ulw.md" ]; then
         print_success "ulw.md installed"
     else
         print_error "ulw.md not found"
@@ -250,11 +244,11 @@ print_usage() {
 main() {
     print_header
 
-    echo "This will install ultrawork to: ${ULTRAWORK_SKILL_DIR}"
+    echo "This will install ultrawork to: ${SKILLS_DIR}"
     echo ""
 
     # Check for existing installation
-    if [ -f "${ULTRAWORK_SKILL_DIR}/ultrawork.md" ]; then
+    if [ -f "${SKILLS_DIR}/ultrawork.md" ]; then
         print_warning "Existing installation detected."
         read -p "Do you want to overwrite? [y/N] " -n 1 -r
         echo
@@ -269,7 +263,7 @@ main() {
     create_config_dir
     install_skills
     create_default_config
-    create_symlink
+    create_symlinks
     verify_installation
     print_usage
 }
