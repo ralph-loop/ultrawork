@@ -14,9 +14,9 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Installation paths
-AGENT_DIR="${HOME}/.agent"
-SKILLS_DIR="${AGENT_DIR}/skills"
-CONFIG_DIR="${AGENT_DIR}/ultrawork"
+CLAUDE_DIR="${HOME}/.claude"
+SKILLS_DIR="${CLAUDE_DIR}/skills"
+CONFIG_DIR="${CLAUDE_DIR}/ultrawork"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # GitHub raw content URL
@@ -48,11 +48,11 @@ print_info() {
     echo -e "${BLUE}→${NC} $1"
 }
 
-# Check if agent directory exists
-check_agent_dir() {
-    if [ ! -d "$AGENT_DIR" ]; then
-        print_info "Creating agent directory: $AGENT_DIR"
-        mkdir -p "$AGENT_DIR"
+# Check if claude directory exists
+check_claude_dir() {
+    if [ ! -d "$CLAUDE_DIR" ]; then
+        print_info "Creating claude directory: $CLAUDE_DIR"
+        mkdir -p "$CLAUDE_DIR"
     fi
 }
 
@@ -69,37 +69,6 @@ create_config_dir() {
     if [ ! -d "$CONFIG_DIR" ]; then
         print_info "Creating config directory: $CONFIG_DIR"
         mkdir -p "$CONFIG_DIR"
-    fi
-}
-
-# Create symbolic links from ~/.claude/skills/ to ~/.agent/skills/
-create_symlinks() {
-    local CLAUDE_SKILLS_DIR="${HOME}/.claude/skills"
-
-    # Create ~/.claude/skills directory if not exists
-    if [ ! -d "$CLAUDE_SKILLS_DIR" ]; then
-        print_info "Creating Claude skills directory: $CLAUDE_SKILLS_DIR"
-        mkdir -p "$CLAUDE_SKILLS_DIR"
-    fi
-
-    # Create symlink for ultrawork.md
-    local CLAUDE_ULTRAWORK_LINK="${CLAUDE_SKILLS_DIR}/ultrawork.md"
-    if [ -L "$CLAUDE_ULTRAWORK_LINK" ]; then
-        rm "$CLAUDE_ULTRAWORK_LINK"
-    fi
-    if [ ! -e "$CLAUDE_ULTRAWORK_LINK" ]; then
-        ln -s "../../.agent/skills/ultrawork.md" "$CLAUDE_ULTRAWORK_LINK"
-        print_success "Created symlink: $CLAUDE_ULTRAWORK_LINK"
-    fi
-
-    # Create symlink for ulw.md
-    local CLAUDE_ULW_LINK="${CLAUDE_SKILLS_DIR}/ulw.md"
-    if [ -L "$CLAUDE_ULW_LINK" ]; then
-        rm "$CLAUDE_ULW_LINK"
-    fi
-    if [ ! -e "$CLAUDE_ULW_LINK" ]; then
-        ln -s "../../.agent/skills/ulw.md" "$CLAUDE_ULW_LINK"
-        print_success "Created symlink: $CLAUDE_ULW_LINK"
     fi
 }
 
@@ -127,7 +96,7 @@ download_or_copy() {
 install_skills() {
     print_info "Installing ultrawork skill..."
 
-    # Install ultrawork.md to ~/.agent/skills/
+    # Install ultrawork.md to ~/.claude/skills/
     if download_or_copy "ultrawork.md" "${SKILLS_DIR}/ultrawork.md"; then
         print_success "Installed ultrawork.md"
     else
@@ -135,7 +104,7 @@ install_skills() {
         exit 1
     fi
 
-    # Install ulw.md (alias) to ~/.agent/skills/
+    # Install ulw.md (alias) to ~/.claude/skills/
     if download_or_copy "ulw.md" "${SKILLS_DIR}/ulw.md"; then
         print_success "Installed ulw.md (alias)"
     else
@@ -166,8 +135,8 @@ create_default_config() {
     "simple": "haiku"
   },
   "skillPaths": [
-    "~/.agent/skills/",
-    ".agent/skills/"
+    "~/.claude/skills/",
+    ".claude/skills/"
   ],
   "learning": {
     "enabled": true,
@@ -258,12 +227,11 @@ main() {
         fi
     fi
 
-    check_agent_dir
+    check_claude_dir
     create_skills_dir
     create_config_dir
     install_skills
     create_default_config
-    create_symlinks
     verify_installation
     print_usage
 }

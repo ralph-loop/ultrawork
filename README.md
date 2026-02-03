@@ -8,7 +8,7 @@ Ultrawork is a Claude Code custom skill that provides Sisyphus-style autonomous 
 
 - **Intent Analysis**: Automatically classifies tasks (Trivial, Explicit, Exploratory, Open-ended, Ambiguous)
 - **Smart Routing**: Routes to appropriate models (haiku/sonnet/opus) based on task complexity
-- **Skill Integration**: Auto-discovers and injects relevant skills from `~/.agent/skills/`
+- **Skill Integration**: Auto-discovers and injects relevant skills from `~/.claude/skills/`
 - **Hive-mind Consensus**: Multi-agent collaboration for complex architectural decisions
 - **Learning System**: SONA + EWC++ pattern learning for improved future decisions
 - **Ralph-loop Support**: Automatic retry until completion
@@ -61,7 +61,7 @@ npx skills add anthropics/git-master
 ```
 
 **How it works:**
-1. **Phase 0**: Scans `~/.agent/skills/` for installed skills
+1. **Phase 0**: Scans `~/.claude/skills/` for installed skills
 2. **Lazy Loading**: Indexes only metadata (95% token savings)
 3. **Vector Matching**: Finds relevant skills in <5ms
 4. **On-Demand Injection**: Loads full skill content only when needed
@@ -128,7 +128,7 @@ curl -fsSL https://raw.githubusercontent.com/ralph-loop/ultrawork/master/uninsta
 
 ## Configuration
 
-Settings are stored in `~/.agent/ultrawork/`:
+Settings are stored in `~/.claude/ultrawork/`:
 - `config.json`: User preferences
 - `patterns.json`: Learned patterns cache
 

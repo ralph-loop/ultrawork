@@ -14,9 +14,9 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Installation paths
-AGENT_DIR="${HOME}/.agent"
-SKILLS_DIR="${AGENT_DIR}/skills"
-CONFIG_DIR="${AGENT_DIR}/ultrawork"
+CLAUDE_DIR="${HOME}/.claude"
+SKILLS_DIR="${CLAUDE_DIR}/skills"
+CONFIG_DIR="${CLAUDE_DIR}/ultrawork"
 
 # Parse arguments
 PURGE=false
@@ -122,7 +122,7 @@ remove_skills() {
     print_info "Removing ultrawork skill files..."
 
     # Validate path before deletion
-    if ! validate_path "${SKILLS_DIR}" ".agent/skills"; then
+    if ! validate_path "${SKILLS_DIR}" ".claude/skills"; then
         print_error "Path validation failed. Aborting."
         exit 1
     fi
@@ -164,35 +164,12 @@ remove_skills() {
     fi
 }
 
-# Remove symlinks from ~/.claude/skills/
-remove_symlinks() {
-    local CLAUDE_SKILLS_DIR="${HOME}/.claude/skills"
-
-    # Remove ultrawork.md symlink
-    local CLAUDE_ULTRAWORK_LINK="${CLAUDE_SKILLS_DIR}/ultrawork.md"
-    if [ -L "$CLAUDE_ULTRAWORK_LINK" ]; then
-        if confirm "Remove symlink at $CLAUDE_ULTRAWORK_LINK?"; then
-            rm "$CLAUDE_ULTRAWORK_LINK"
-            print_success "Removed symlink: $CLAUDE_ULTRAWORK_LINK"
-        fi
-    fi
-
-    # Remove ulw.md symlink
-    local CLAUDE_ULW_LINK="${CLAUDE_SKILLS_DIR}/ulw.md"
-    if [ -L "$CLAUDE_ULW_LINK" ]; then
-        if confirm "Remove symlink at $CLAUDE_ULW_LINK?"; then
-            rm "$CLAUDE_ULW_LINK"
-            print_success "Removed symlink: $CLAUDE_ULW_LINK"
-        fi
-    fi
-}
-
 # Remove config and data (only ultrawork-related files)
 remove_config() {
     print_info "Removing configuration and data..."
 
     # Validate path before deletion
-    if ! validate_path "${CONFIG_DIR}" ".agent/ultrawork"; then
+    if ! validate_path "${CONFIG_DIR}" ".claude/ultrawork"; then
         print_error "Path validation failed. Aborting."
         exit 1
     fi
@@ -280,7 +257,6 @@ main() {
 
     echo ""
     remove_skills
-    remove_symlinks
 
     if [ "$PURGE" = true ]; then
         remove_config
