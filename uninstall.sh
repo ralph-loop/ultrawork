@@ -90,36 +90,119 @@ confirm() {
     return 1
 }
 
-# Remove skill files
+# Validate path is safe to delete
+validate_path() {
+    local path=$1
+    local expected_parent=$2
+
+    # Check path is not empty
+    if [ -z "$path" ]; then
+        print_error "Path is empty"
+        return 1
+    fi
+
+    # Check path contains expected parent directory
+    if [[ "$path" != *"$expected_parent"* ]]; then
+        print_error "Path does not contain expected parent: $expected_parent"
+        return 1
+    fi
+
+    # Check path is not a system directory
+    case "$path" in
+        /|/usr|/etc|/var|/home|/root|"$HOME"|"$HOME/")
+            print_error "Refusing to delete system directory: $path"
+            return 1
+            ;;
+    esac
+
+    return 0
+}
+
+# Remove skill files (only ultrawork-related files)
 remove_skills() {
-    print_info "Removing skill files..."
+    print_info "Removing ultrawork skill files..."
+
+    # Validate path before deletion
+    if ! validate_path "${ULTRAWORK_SKILL_DIR}" ".claude/skills/ultrawork"; then
+        print_error "Path validation failed. Aborting."
+        exit 1
+    fi
 
     if [ -d "${ULTRAWORK_SKILL_DIR}" ]; then
-        rm -rf "${ULTRAWORK_SKILL_DIR}"
-        print_success "Removed ultrawork skill directory: ${ULTRAWORK_SKILL_DIR}"
+        # Show files to be deleted
+        echo ""
+        echo "The following files will be deleted:"
+        if [ -f "${ULTRAWORK_SKILL_DIR}/ultrawork.md" ]; then
+            echo "  - ${ULTRAWORK_SKILL_DIR}/ultrawork.md"
+        fi
+        if [ -f "${ULTRAWORK_SKILL_DIR}/ulw.md" ]; then
+            echo "  - ${ULTRAWORK_SKILL_DIR}/ulw.md"
+        fi
+        echo ""
+
+        if ! confirm "Do you want to delete these skill files?"; then
+            print_warning "Skipped skill file removal"
+            return
+        fi
+
+        # Delete only specific ultrawork files
+        if [ -f "${ULTRAWORK_SKILL_DIR}/ultrawork.md" ]; then
+            rm -f "${ULTRAWORK_SKILL_DIR}/ultrawork.md"
+            print_success "Removed ultrawork.md"
+        fi
+
+        if [ -f "${ULTRAWORK_SKILL_DIR}/ulw.md" ]; then
+            rm -f "${ULTRAWORK_SKILL_DIR}/ulw.md"
+            print_success "Removed ulw.md"
+        fi
+
+        # Remove directory only if empty
+        if [ -d "${ULTRAWORK_SKILL_DIR}" ] && [ -z "$(ls -A "${ULTRAWORK_SKILL_DIR}")" ]; then
+            rmdir "${ULTRAWORK_SKILL_DIR}"
+            print_success "Removed empty directory: ${ULTRAWORK_SKILL_DIR}"
+        elif [ -d "${ULTRAWORK_SKILL_DIR}" ]; then
+            print_warning "Directory not empty, keeping: ${ULTRAWORK_SKILL_DIR}"
+        fi
     else
         print_warning "ultrawork skill directory not found (already removed?)"
     fi
 }
 
-# Remove config and data
+# Remove config and data (only ultrawork-related files)
 remove_config() {
     print_info "Removing configuration and data..."
+
+    # Validate path before deletion
+    if ! validate_path "${CONFIG_DIR}" ".claude/ultrawork"; then
+        print_error "Path validation failed. Aborting."
+        exit 1
+    fi
 
     if [ -d "$CONFIG_DIR" ]; then
         # List what will be removed
         echo ""
-        echo "The following will be removed:"
-        echo "  - ${CONFIG_DIR}/config.json (settings)"
-        echo "  - ${CONFIG_DIR}/patterns.json (learned patterns)"
-        echo "  - ${CONFIG_DIR}/cache/ (temporary data)"
+        echo "The following files will be removed:"
+        [ -f "${CONFIG_DIR}/config.json" ] && echo "  - ${CONFIG_DIR}/config.json (settings)"
+        [ -f "${CONFIG_DIR}/patterns.json" ] && echo "  - ${CONFIG_DIR}/patterns.json (learned patterns)"
+        [ -d "${CONFIG_DIR}/cache" ] && echo "  - ${CONFIG_DIR}/cache/ (temporary data)"
         echo ""
 
-        if confirm "Are you sure you want to remove all ultrawork data?"; then
-            rm -rf "$CONFIG_DIR"
-            print_success "Removed config directory: $CONFIG_DIR"
-        else
+        if ! confirm "Are you sure you want to remove all ultrawork config data?"; then
             print_warning "Skipped config removal"
+            return
+        fi
+
+        # Delete only specific ultrawork config files
+        [ -f "${CONFIG_DIR}/config.json" ] && rm -f "${CONFIG_DIR}/config.json" && print_success "Removed config.json"
+        [ -f "${CONFIG_DIR}/patterns.json" ] && rm -f "${CONFIG_DIR}/patterns.json" && print_success "Removed patterns.json"
+        [ -d "${CONFIG_DIR}/cache" ] && rm -rf "${CONFIG_DIR}/cache" && print_success "Removed cache directory"
+
+        # Remove directory only if empty
+        if [ -d "${CONFIG_DIR}" ] && [ -z "$(ls -A "${CONFIG_DIR}")" ]; then
+            rmdir "${CONFIG_DIR}"
+            print_success "Removed empty directory: ${CONFIG_DIR}"
+        elif [ -d "${CONFIG_DIR}" ]; then
+            print_warning "Directory not empty, keeping: ${CONFIG_DIR}"
         fi
     else
         print_warning "Config directory not found (already removed?)"
