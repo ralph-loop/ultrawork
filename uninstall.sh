@@ -168,6 +168,22 @@ remove_skills() {
     fi
 }
 
+# Remove symlink from ~/.claude/skills/ultrawork
+remove_symlink() {
+    local CLAUDE_ULTRAWORK_LINK="${HOME}/.claude/skills/ultrawork"
+
+    if [ -L "$CLAUDE_ULTRAWORK_LINK" ]; then
+        if confirm "Remove symlink at $CLAUDE_ULTRAWORK_LINK?"; then
+            rm "$CLAUDE_ULTRAWORK_LINK"
+            print_success "Removed symlink: $CLAUDE_ULTRAWORK_LINK"
+        else
+            print_warning "Skipped symlink removal"
+        fi
+    elif [ -e "$CLAUDE_ULTRAWORK_LINK" ]; then
+        print_warning "$CLAUDE_ULTRAWORK_LINK exists but is not a symlink, skipping"
+    fi
+}
+
 # Remove config and data (only ultrawork-related files)
 remove_config() {
     print_info "Removing configuration and data..."
@@ -260,6 +276,7 @@ main() {
 
     echo ""
     remove_skills
+    remove_symlink
 
     if [ "$PURGE" = true ]; then
         remove_config
