@@ -20,6 +20,9 @@ ULTRAWORK_SKILL_DIR="${SKILLS_DIR}/ultrawork"
 CONFIG_DIR="${CLAUDE_DIR}/ultrawork"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# GitHub raw content URL
+GITHUB_RAW_URL="https://raw.githubusercontent.com/ralph-loop/ultrawork/master"
+
 # Functions
 print_header() {
     echo -e "${BLUE}"
@@ -78,6 +81,26 @@ create_ultrawork_skill_dir() {
     fi
 }
 
+# Download file from GitHub or copy from local
+download_or_copy() {
+    local filename=$1
+    local dest=$2
+
+    # Try local file first
+    if [ -f "${SCRIPT_DIR}/skills/${filename}" ]; then
+        cp "${SCRIPT_DIR}/skills/${filename}" "${dest}"
+        return 0
+    fi
+
+    # Download from GitHub
+    print_info "Downloading ${filename} from GitHub..."
+    if curl -fsSL "${GITHUB_RAW_URL}/skills/${filename}" -o "${dest}"; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 # Install skill files
 install_skills() {
     print_info "Installing ultrawork skill..."
@@ -85,21 +108,19 @@ install_skills() {
     # Create ultrawork skill directory
     create_ultrawork_skill_dir
 
-    # Copy ultrawork.md
-    if [ -f "${SCRIPT_DIR}/skills/ultrawork.md" ]; then
-        cp "${SCRIPT_DIR}/skills/ultrawork.md" "${ULTRAWORK_SKILL_DIR}/ultrawork.md"
+    # Install ultrawork.md
+    if download_or_copy "ultrawork.md" "${ULTRAWORK_SKILL_DIR}/ultrawork.md"; then
         print_success "Installed ultrawork.md"
     else
-        print_error "ultrawork.md not found in ${SCRIPT_DIR}/skills/"
+        print_error "Failed to install ultrawork.md"
         exit 1
     fi
 
-    # Copy ulw.md (alias)
-    if [ -f "${SCRIPT_DIR}/skills/ulw.md" ]; then
-        cp "${SCRIPT_DIR}/skills/ulw.md" "${ULTRAWORK_SKILL_DIR}/ulw.md"
+    # Install ulw.md (alias)
+    if download_or_copy "ulw.md" "${ULTRAWORK_SKILL_DIR}/ulw.md"; then
         print_success "Installed ulw.md (alias)"
     else
-        print_error "ulw.md not found in ${SCRIPT_DIR}/skills/"
+        print_error "Failed to install ulw.md"
         exit 1
     fi
 }
