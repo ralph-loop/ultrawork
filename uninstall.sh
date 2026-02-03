@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 
 # Installation paths
 CLAUDE_DIR="${HOME}/.claude"
-SKILLS_DIR="${CLAUDE_DIR}/skills"
+COMMANDS_DIR="${CLAUDE_DIR}/commands"
 CONFIG_DIR="${CLAUDE_DIR}/ultrawork"
 
 # Parse arguments
@@ -122,7 +122,7 @@ remove_skills() {
     print_info "Removing ultrawork skill files..."
 
     # Validate path before deletion
-    if ! validate_path "${SKILLS_DIR}" ".claude/skills"; then
+    if ! validate_path "${COMMANDS_DIR}" ".claude/commands"; then
         print_error "Path validation failed. Aborting."
         exit 1
     fi
@@ -131,12 +131,12 @@ remove_skills() {
     local has_files=false
     echo ""
     echo "The following files will be deleted:"
-    if [ -f "${SKILLS_DIR}/ultrawork.md" ]; then
-        echo "  - ${SKILLS_DIR}/ultrawork.md"
+    if [ -f "${COMMANDS_DIR}/ultrawork.md" ]; then
+        echo "  - ${COMMANDS_DIR}/ultrawork.md"
         has_files=true
     fi
-    if [ -f "${SKILLS_DIR}/ulw.md" ]; then
-        echo "  - ${SKILLS_DIR}/ulw.md"
+    if [ -f "${COMMANDS_DIR}/ulw.md" ]; then
+        echo "  - ${COMMANDS_DIR}/ulw.md"
         has_files=true
     fi
 
@@ -153,13 +153,13 @@ remove_skills() {
     fi
 
     # Delete only specific ultrawork files
-    if [ -f "${SKILLS_DIR}/ultrawork.md" ]; then
-        rm -f "${SKILLS_DIR}/ultrawork.md"
+    if [ -f "${COMMANDS_DIR}/ultrawork.md" ]; then
+        rm -f "${COMMANDS_DIR}/ultrawork.md"
         print_success "Removed ultrawork.md"
     fi
 
-    if [ -f "${SKILLS_DIR}/ulw.md" ]; then
-        rm -f "${SKILLS_DIR}/ulw.md"
+    if [ -f "${COMMANDS_DIR}/ulw.md" ]; then
+        rm -f "${COMMANDS_DIR}/ulw.md"
         print_success "Removed ulw.md"
     fi
 }
@@ -219,8 +219,8 @@ print_summary() {
         echo "  - Cache data"
     else
         echo "Removed:"
-        echo "  - ${SKILLS_DIR}/ultrawork.md"
-        echo "  - ${SKILLS_DIR}/ulw.md"
+        echo "  - ${COMMANDS_DIR}/ultrawork.md"
+        echo "  - ${COMMANDS_DIR}/ulw.md"
         echo ""
         echo "Kept:"
         echo "  - Configuration: ${CONFIG_DIR}/config.json"
@@ -239,12 +239,12 @@ main() {
     print_header
 
     # Check if anything is installed
-    if [ ! -f "${SKILLS_DIR}/ultrawork.md" ] && [ ! -f "${SKILLS_DIR}/ulw.md" ] && [ ! -d "$CONFIG_DIR" ]; then
+    if [ ! -f "${COMMANDS_DIR}/ultrawork.md" ] && [ ! -f "${COMMANDS_DIR}/ulw.md" ] && [ ! -d "$CONFIG_DIR" ]; then
         print_warning "Ultrawork does not appear to be installed."
         exit 0
     fi
 
-    echo "This will uninstall ultrawork from: ${SKILLS_DIR}"
+    echo "This will uninstall ultrawork from: ${COMMANDS_DIR}"
     if [ "$PURGE" = true ]; then
         echo -e "${YELLOW}WARNING: --purge flag is set. All data will be removed.${NC}"
     fi

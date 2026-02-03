@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 
 # Installation paths
 CLAUDE_DIR="${HOME}/.claude"
-SKILLS_DIR="${CLAUDE_DIR}/skills"
+COMMANDS_DIR="${CLAUDE_DIR}/commands"
 CONFIG_DIR="${CLAUDE_DIR}/ultrawork"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -56,11 +56,11 @@ check_claude_dir() {
     fi
 }
 
-# Create skills directory if not exists
-create_skills_dir() {
-    if [ ! -d "$SKILLS_DIR" ]; then
-        print_info "Creating skills directory: $SKILLS_DIR"
-        mkdir -p "$SKILLS_DIR"
+# Create commands directory if not exists
+create_commands_dir() {
+    if [ ! -d "$COMMANDS_DIR" ]; then
+        print_info "Creating commands directory: $COMMANDS_DIR"
+        mkdir -p "$COMMANDS_DIR"
     fi
 }
 
@@ -97,7 +97,7 @@ install_skills() {
     print_info "Installing ultrawork skill..."
 
     # Install ultrawork.md to ~/.claude/skills/
-    if download_or_copy "ultrawork.md" "${SKILLS_DIR}/ultrawork.md"; then
+    if download_or_copy "ultrawork.md" "${COMMANDS_DIR}/ultrawork.md"; then
         print_success "Installed ultrawork.md"
     else
         print_error "Failed to install ultrawork.md"
@@ -105,7 +105,7 @@ install_skills() {
     fi
 
     # Install ulw.md (alias) to ~/.claude/skills/
-    if download_or_copy "ulw.md" "${SKILLS_DIR}/ulw.md"; then
+    if download_or_copy "ulw.md" "${COMMANDS_DIR}/ulw.md"; then
         print_success "Installed ulw.md (alias)"
     else
         print_error "Failed to install ulw.md"
@@ -156,14 +156,14 @@ verify_installation() {
 
     local errors=0
 
-    if [ -f "${SKILLS_DIR}/ultrawork.md" ]; then
+    if [ -f "${COMMANDS_DIR}/ultrawork.md" ]; then
         print_success "ultrawork.md installed"
     else
         print_error "ultrawork.md not found"
         ((errors++))
     fi
 
-    if [ -f "${SKILLS_DIR}/ulw.md" ]; then
+    if [ -f "${COMMANDS_DIR}/ulw.md" ]; then
         print_success "ulw.md installed"
     else
         print_error "ulw.md not found"
@@ -213,11 +213,11 @@ print_usage() {
 main() {
     print_header
 
-    echo "This will install ultrawork to: ${SKILLS_DIR}"
+    echo "This will install ultrawork to: ${COMMANDS_DIR}"
     echo ""
 
     # Check for existing installation
-    if [ -f "${SKILLS_DIR}/ultrawork.md" ]; then
+    if [ -f "${COMMANDS_DIR}/ultrawork.md" ]; then
         print_warning "Existing installation detected."
         read -p "Do you want to overwrite? [y/N] " -n 1 -r
         echo
@@ -228,7 +228,7 @@ main() {
     fi
 
     check_claude_dir
-    create_skills_dir
+    create_commands_dir
     create_config_dir
     install_skills
     create_default_config

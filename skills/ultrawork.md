@@ -47,8 +47,8 @@ When this command is invoked, execute the following phases automatically:
 ```typescript
 // Scan skill directories (auto-detect skills installed via skills.sh)
 const SKILL_PATHS = [
-  "~/.claude/skills/",      // Global skills
-  ".claude/skills/"         // Project skills
+  "~/.claude/commands/",      // Global skills
+  ".claude/commands/"         // Project skills
 ];
 
 // Lazy Loading: Store metadata only (not full content)
@@ -633,7 +633,7 @@ After 3 consecutive failures:
 | Memory/Wisdom | `memory_store`, `memory_retrieve` |
 | Learning | `hooks_intelligence_trajectory-*` |
 | **load_skills** | **`pattern-search` + prompt injection** |
-| **Skill discovery** | **Auto-scan `~/.claude/skills/`** |
+| **Skill discovery** | **Auto-scan `~/.claude/commands/`** |
 
 ---
 
@@ -646,7 +646,7 @@ After 3 consecutive failures:
 │                                                               │
 │  npx skills add <owner/repo>                                  │
 │       ↓                                                       │
-│  ~/.claude/skills/<skill-name>/SKILL.md                       │
+│  ~/.claude/commands/<skill-name>/SKILL.md                       │
 │       ↓                                                       │
 │  [Phase 0] Auto-scan + HNSW indexing                          │
 │       ↓                                                       │
