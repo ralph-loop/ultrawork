@@ -14,10 +14,10 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Installation paths
-CLAUDE_DIR="${HOME}/.claude"
-SKILLS_DIR="${CLAUDE_DIR}/skills"
+AGENT_DIR="${HOME}/.agent"
+SKILLS_DIR="${AGENT_DIR}/skills"
 ULTRAWORK_SKILL_DIR="${SKILLS_DIR}/ultrawork"
-CONFIG_DIR="${CLAUDE_DIR}/ultrawork"
+CONFIG_DIR="${AGENT_DIR}/ultrawork"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # GitHub raw content URL
@@ -49,11 +49,11 @@ print_info() {
     echo -e "${BLUE}→${NC} $1"
 }
 
-# Check if Claude Code directory exists
-check_claude_dir() {
-    if [ ! -d "$CLAUDE_DIR" ]; then
-        print_info "Creating Claude Code directory: $CLAUDE_DIR"
-        mkdir -p "$CLAUDE_DIR"
+# Check if agent directory exists
+check_agent_dir() {
+    if [ ! -d "$AGENT_DIR" ]; then
+        print_info "Creating agent directory: $AGENT_DIR"
+        mkdir -p "$AGENT_DIR"
     fi
 }
 
@@ -147,8 +147,8 @@ create_default_config() {
     "simple": "haiku"
   },
   "skillPaths": [
-    "~/.claude/skills/",
-    ".claude/skills/"
+    "~/.agent/skills/",
+    ".agent/skills/"
   ],
   "learning": {
     "enabled": true,
@@ -218,7 +218,7 @@ print_usage() {
     echo "Config location: ${CONFIG_DIR}/config.json"
     echo ""
     echo "To uninstall:"
-    echo "  curl -fsSL https://raw.githubusercontent.com/ralph-loop/ultrawork/main/uninstall.sh | bash"
+    echo "  curl -fsSL https://raw.githubusercontent.com/ralph-loop/ultrawork/master/uninstall.sh | bash"
 }
 
 # Main installation flow
@@ -239,7 +239,7 @@ main() {
         fi
     fi
 
-    check_claude_dir
+    check_agent_dir
     create_skills_dir
     create_config_dir
     install_skills

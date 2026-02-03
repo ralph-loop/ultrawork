@@ -14,10 +14,10 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Installation paths
-CLAUDE_DIR="${HOME}/.claude"
-SKILLS_DIR="${CLAUDE_DIR}/skills"
+AGENT_DIR="${HOME}/.agent"
+SKILLS_DIR="${AGENT_DIR}/skills"
 ULTRAWORK_SKILL_DIR="${SKILLS_DIR}/ultrawork"
-CONFIG_DIR="${CLAUDE_DIR}/ultrawork"
+CONFIG_DIR="${AGENT_DIR}/ultrawork"
 
 # Parse arguments
 PURGE=false
@@ -123,7 +123,7 @@ remove_skills() {
     print_info "Removing ultrawork skill files..."
 
     # Validate path before deletion
-    if ! validate_path "${ULTRAWORK_SKILL_DIR}" ".claude/skills/ultrawork"; then
+    if ! validate_path "${ULTRAWORK_SKILL_DIR}" ".agent/skills/ultrawork"; then
         print_error "Path validation failed. Aborting."
         exit 1
     fi
@@ -173,7 +173,7 @@ remove_config() {
     print_info "Removing configuration and data..."
 
     # Validate path before deletion
-    if ! validate_path "${CONFIG_DIR}" ".claude/ultrawork"; then
+    if ! validate_path "${CONFIG_DIR}" ".agent/ultrawork"; then
         print_error "Path validation failed. Aborting."
         exit 1
     fi
