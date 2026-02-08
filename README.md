@@ -1,3 +1,5 @@
+> **DEPRECATED: This project is no longer maintained.** Claude Code's built-in Team tools now provide native multi-agent orchestration, making this skill redundant. No further updates or bug fixes will be made.
+
 # Ultrawork - Intelligent Task Orchestration for Claude Code
 
 > Zero-learning-curve intelligent task orchestration with Hive-mind consensus
